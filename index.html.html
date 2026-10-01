@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PISA 2025: resumen visual</title>
+<style>
+  :root{
+    color-scheme: light;
+    --page: #f9f9f7;
+    --surface: #fcfcfb;
+    --text-primary: #0b0b0b;
+    --text-secondary: #52514e;
+    --muted: #898781;
+    --grid: #e1e0d9;
+    --baseline: #c3c2b7;
+    --border: rgba(11,11,11,0.10);
+    --bad: #d03b3b;
+    --bad-text: #b5312f;
+    --good: #0ca30c;
+    --math: #2a78d6;
+    --math-soft: #cde2fb;
+    --read: #eb6834;
+    --read-soft: #fbdccb;
+    --sci: #1baf7a;
+    --sci-soft: #c9efe0;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      color-scheme: dark;
+      --page: #0d0d0d;
+      --surface: #1a1a19;
+      --text-primary: #ffffff;
+      --text-secondary: #c3c2b7;
+      --muted: #898781;
+      --grid: #2c2c2a;
+      --baseline: #383835;
+      --border: rgba(255,255,255,0.10);
+      --bad: #e66767;
+      --bad-text: #e66767;
+      --good: #0ca30c;
+      --math: #3987e5;
+      --math-soft: #16324f;
+      --read: #d95926;
+      --read-soft: #4a2716;
+      --sci: #199e70;
+      --sci-soft: #113a2c;
+    }
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--page);
+    color:var(--text-primary);
+    font-family: system-ui,-apple-system,"Segoe UI",sans-serif;
+    line-height:1.45;
+  }
+  .wrap{max-width:1080px; margin:0 auto; padding:32px 20px 72px;}
+
+  /* ---------- Header ---------- */
+  header{padding:8px 0 28px; border-bottom:1px solid var(--border); margin-bottom:28px;}
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:12.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+    color:var(--bad-text); background: color-mix(in srgb, var(--bad) 12%, transparent);
+    padding:4px 10px; border-radius:20px; margin-bottom:14px;
+  }
+  h1{font-size:clamp(26px,4vw,38px); margin:0 0 8px; letter-spacing:-0.01em;}
+  .sub{color:var(--text-secondary); font-size:15px; max-width:640px;}
+  .meta{display:flex; flex-wrap:wrap; gap:18px; margin-top:16px; font-size:13px; color:var(--muted);}
+  .meta span{display:flex; align-items:center; gap:6px;}
+  .dot{width:5px;height:5px;border-radius:50%;background:var(--muted);}
+
+  section{margin-bottom:44px;}
+  .sec-head{margin-bottom:16px;}
+  .sec-title{font-size:20px; font-weight:700; margin:0 0 4px;}
+  .sec-desc{color:var(--text-secondary); font-size:14px; max-width:680px;}
+
+  /* ---------- Stat tiles ---------- */
+  .tiles{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+  @media (max-width:720px){ .tiles{grid-template-columns:1fr;} }
+  .tile{
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    padding:16px 18px; border-top:3px solid var(--tile-color, var(--muted));
+  }
+  .tile .label{font-size:12.5px; color:var(--text-secondary); font-weight:600; text-transform:uppercase; letter-spacing:.03em;}
+  .tile .value{font-size:32px; font-weight:700; margin:6px 0 2px; letter-spacing:-0.01em;}
+  .tile .delta{font-size:13px; font-weight:600;}
+  .tile .delta.down{color:var(--bad-text);}
+  .tile .foot{font-size:12.5px; color:var(--muted); margin-top:6px;}
+
+  /* ---------- Bar chart (grouped) ---------- */
+  .chart-card{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px 22px 16px;}
+  .chart-title{font-size:14.5px; font-weight:700; margin:0 0 2px;}
+  .chart-sub{font-size:12.5px; color:var(--muted); margin-bottom:16px;}
+  .legend{display:flex; gap:16px; margin-bottom:14px; flex-wrap:wrap;}
+  .legend-item{display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--text-secondary);}
+  .swatch{width:10px;height:10px;border-radius:3px;}
+
+  .gbar-group{display:grid; grid-template-columns:130px 1fr; align-items:center; gap:10px; margin-bottom:14px;}
+  .gbar-group:last-child{margin-bottom:0;}
+  .gbar-label{font-size:13px; font-weight:600; color:var(--text-primary);}
+  .gbar-rows{display:flex; flex-direction:column; gap:5px;}
+  .gbar-row{display:grid; grid-template-columns:34px 1fr 96px; align-items:center; gap:8px;}
+  .gbar-yr{font-size:11.5px; color:var(--muted); font-variant-numeric:tabular-nums;}
+  .gbar-track{position:relative; height:16px; background:var(--grid); border-radius:4px; overflow:visible;}
+  .gbar-fill{position:absolute; left:0; top:0; height:100%; border-radius:4px; min-width:4px;}
+  .gbar-val{font-size:12.5px; font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap;}
+  .gbar-val .d{font-weight:600; font-size:11.5px; margin-left:4px;}
+  .gbar-val .d.down{color:var(--bad-text);}
+
+  .axis-scale{display:grid; grid-template-columns:130px 1fr; margin-top:6px;}
+  .axis-ticks{position:relative; height:16px; margin-left:34px; margin-right:96px;}
+  .axis-tick{position:absolute; top:0; font-size:10.5px; color:var(--muted); transform:translateX(-50%);}
+
+  /* tooltip on hover for bars */
+  .gbar-fill{cursor:default;}
+  .gbar-fill[title]:hover{filter:brightness(1.08);}
+
+  /* ---------- Country cards (LatAm) ---------- */
+  .country-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:14px;}
+  @media (max-width:720px){ .country-grid{grid-template-columns:1fr;} }
+  .country-card{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px 18px;}
+  .country-name{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:10px;}
+  .country-name h4{margin:0; font-size:15px;}
+  .country-note{font-size:11.5px; color:var(--muted);}
+  .crow{display:grid; grid-template-columns:66px 1fr 42px 54px; align-items:center; gap:8px; margin-bottom:6px; font-size:12.5px;}
+  .crow:last-child{margin-bottom:0;}
+  .crow .clabel{color:var(--text-secondary); font-weight:600;}
+  .ctrack{position:relative; height:12px; background:var(--grid); border-radius:3px;}
+  .cfill{position:absolute; left:0; top:0; height:100%; border-radius:3px;}
+  .cval{font-variant-numeric:tabular-nums; font-weight:600; text-align:right;}
+  .cdelta{font-size:11px; font-weight:700; text-align:right;}
+  .cdelta.up{color:var(--good);}
+  .cdelta.down{color:var(--bad-text);}
+  .footnote{font-size:12px; color:var(--muted); margin-top:12px; line-height:1.5;}
+
+  /* ---------- Chips ---------- */
+  .chip-row{display:flex; flex-wrap:wrap; gap:8px;}
+  .chip{
+    font-size:12.5px; padding:6px 12px; border-radius:20px; border:1px solid var(--border);
+    background:var(--surface); color:var(--text-secondary);
+  }
+  .chip.hl{border-color:transparent; background:var(--math-soft); color:var(--math); font-weight:600;}
+
+  /* ---------- Callouts grid ---------- */
+  .callouts{display:grid; grid-template-columns:repeat(2,1fr); gap:14px;}
+  @media (max-width:720px){ .callouts{grid-template-columns:1fr;} }
+  .callout{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px 18px; display:flex; gap:12px;}
+  .callout .icon{font-size:20px; line-height:1;}
+  .callout .ctitle{font-size:14px; font-weight:700; margin-bottom:3px;}
+  .callout .ctext{font-size:13px; color:var(--text-secondary);}
+
+  .two-col{display:grid; grid-template-columns:1.1fr 0.9fr; gap:16px;}
+  @media (max-width:820px){ .two-col{grid-template-columns:1fr;} }
+
+  .rank-list{display:flex; flex-direction:column; gap:8px;}
+  .rank-row{display:grid; grid-template-columns:24px 118px 1fr 42px; align-items:center; gap:8px; font-size:13px;}
+  .rank-row .rname{font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .rank-row .rtrack{position:relative; height:10px; background:var(--grid); border-radius:3px;}
+  .rank-row .rfill{position:absolute; left:0; top:0; height:100%; border-radius:3px; background:var(--sci);}
+  .rank-row .rval{text-align:right; font-variant-numeric:tabular-nums; color:var(--text-secondary); font-size:12px; white-space:nowrap;}
+
+  .src{font-size:12px; color:var(--muted); border-top:1px solid var(--border); padding-top:18px; margin-top:8px;}
+  .src a{color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">● Publicado hoy</div>
+    <h1>PISA 2025: los resultados que acaba de publicar la OCDE</h1>
+    <p class="sub">El informe muestra la media más baja jamás registrada en matemáticas y lectura desde que existe la prueba, con caídas generalizadas en la mayoría de países.</p>
+    <div class="meta">
+      <span>📅 Publicado el 8 de septiembre de 2026</span>
+      <span class="dot"></span>
+      <span>🌍 91 países y economías</span>
+      <span class="dot"></span>
+      <span>🧑‍🎓 +760.000 estudiantes de 15 años (≈33 millones representados)</span>
+    </div>
+  </header>
+
+  <!-- ================= PANORAMA OCDE ================= -->
+  <section>
+    <div class="sec-head">
+      <p class="sec-title">Panorama general (media OCDE)</p>
+      <p class="sec-desc">Las tres materias caen frente a 2022. La lectura sufre el mayor descenso desde 2015, mientras que ciencias se mantiene estable en el último ciclo tras años de caída.</p>
+    </div>
+
+    <div class="tiles" style="margin-bottom:16px;">
+      <div class="tile" style="--tile-color:var(--math)">
+        <div class="label">Matemáticas</div>
+        <div class="value">463</div>
+        <div class="delta down">▼ 9 pts vs. 2022</div>
+        <div class="foot">−22 pts desde 2015</div>
+      </div>
+      <div class="tile" style="--tile-color:var(--read)">
+        <div class="label">Lectura</div>
+        <div class="value">461</div>
+        <div class="delta down">▼ 15 pts vs. 2022</div>
+        <div class="foot">−28 pts desde 2015 (la mayor caída)</div>
+      </div>
+      <div class="tile" style="--tile-color:var(--sci)">
+        <div class="label">Ciencias</div>
+        <div class="value">482</div>
+        <div class="delta down">▼ 3 pts vs. 2022</div>
+        <div class="foot">Estable 2022→2025, tras caer desde 2009</div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <p class="chart-title">Media OCDE por materia · 2022 vs. 2025</p>
+      <p class="chart-sub">Puntuación en la escala PISA (0–600). Pase el cursor sobre una barra para ver el valor exacto.</p>
+
+      <div class="gbar-group">
+        <div class="gbar-label">Matemáticas</div>
+        <div class="gbar-rows">
+          <div class="gbar-row">
+            <span class="gbar-yr">2022</span>
+            <div class="gbar-track"><div class="gbar-fill" title="Matemáticas 2022: 472" style="width:78.7%; background:var(--math-soft); border:1px solid var(--math);"></div></div>
+            <span class="gbar-val">472</span>
+          </div>
+          <div class="gbar-row">
+            <span class="gbar-yr">2025</span>
+            <div class="gbar-track"><div class="gbar-fill" title="Matemáticas 2025: 463" style="width:77.2%; background:var(--math);"></div></div>
+            <span class="gbar-val">463 <span class="d down">▼9</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="gbar-group">
+        <div class="gbar-label">Lectura</div>
+        <div class="gbar-rows">
+          <div class="gbar-row">
+            <span class="gbar-yr">2022</span>
+            <div class="gbar-track"><div class="gbar-fill" title="Lectura 2022: 476" style="width:79.3%; background:var(--read-soft); border:1px solid var(--read);"></div></div>
+            <span class="gbar-val">476</span>
+          </div>
+          <div class="gbar-row">
+            <span class="gbar-yr">2025</span>
+            <div class="gbar-track"><div class="gbar-fill" title="Lectura 2025: 461" style="width:76.8%; background:var(--read);"></div></div>
+            <span class="gbar-val">461 <span class="d down">▼15</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="gbar-group">
+        <div class="gbar-label">Ciencias</div>
+        <div class="gbar-rows">
+          <div class="gbar-row">
+            <span class="gbar-yr">2022</span>
+            <div class="gbar-track"><div class="gbar-fill" title="Ciencias 2022: 485" style="width:80.8%; background:var(--sci-soft); border:1px solid var(--sci);"></div></div>
+            <span class="gbar-val">485</span>
+          </div>
+          <div class="gbar-row">
+            <span class="gbar-yr">2025</span>
+            <div class="gbar-track"><div class="gbar-fill" title="Ciencias 2025: 482" style="width:80.3%; background:var(--sci);"></div></div>
+            <span class="gbar-val">482 <span class="d down">▼3</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="axis-scale">
+        <div></div>
+        <div class="axis-ticks">
+          <span class="axis-tick" style="left:0%">0</span>
+          <span class="axis-tick" style="left:33.3%">200</span>
+          <span class="axis-tick" style="left:66.6%">400</span>
+          <span class="axis-tick" style="left:100%">600</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TENDENCIAS GLOBALES ================= -->
+  <section>
+    <div class="sec-head">
+      <p class="sec-title">Cuatro señales detrás de la caída</p>
+    </div>
+    <div class="callouts">
+      <div class="callout">
+        <div class="icon">📉</div>
+        <div>
+          <div class="ctitle">1 de cada 5 alumnos, de bajo rendimiento</div>
+          <div class="ctext">El 20% no alcanza el nivel básico en ciencias, matemáticas ni lectura a la vez, frente al 16% en 2022.</div>
+        </div>
+      </div>
+      <div class="callout">
+        <div class="icon">⚖️</div>
+        <div>
+          <div class="ctitle">Brecha socioeconómica: 85 puntos</div>
+          <div class="ctext">Es la diferencia en ciencias entre alumnado favorecido y desfavorecido en la OCDE (se redujo levemente desde 2022).</div>
+        </div>
+      </div>
+      <div class="callout">
+        <div class="icon">🧑‍🏫</div>
+        <div>
+          <div class="ctitle">4 de cada 10, en centros sin profesorado suficiente</div>
+          <div class="ctext">Sus directores señalan que la falta de docentes (y de personal de apoyo) perjudica la enseñanza; afecta más a centros públicos y desfavorecidos.</div>
+        </div>
+      </div>
+      <div class="callout">
+        <div class="icon">🤖</div>
+        <div>
+          <div class="ctitle">Uso de IA y dispositivos, bajo la lupa</div>
+          <div class="ctext">Quienes usan chatbots de IA para tareas escolares puntúan más bajo; más de 1 de cada 4 dice que los dispositivos de sus compañeros les distraen en clase de ciencias.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= RANKINGS ================= -->
+  <section>
+    <div class="two-col">
+      <div class="chart-card">
+        <p class="chart-title">Los sistemas educativos que lideran</p>
+        <p class="chart-sub">Entre los 10 primeros puestos en las tres materias (matemáticas, lectura y ciencias):</p>
+        <div class="chip-row">
+          <span class="chip hl">Singapur</span>
+          <span class="chip hl">Japón</span>
+          <span class="chip hl">Corea del Sur</span>
+          <span class="chip hl">Taipéi Chino</span>
+          <span class="chip hl">Estonia</span>
+          <span class="chip hl">Jurisdicciones de China</span>
+          <span class="chip hl">Reino Unido</span>
+        </div>
+      </div>
+      <div class="chart-card">
+        <p class="chart-title">Mejoran a contracorriente</p>
+        <p class="chart-sub">Suben en ciencias entre 2015 y 2025, pese a la tendencia general a la baja:</p>
+        <div class="chip-row">
+          <span class="chip">Catar</span>
+          <span class="chip">EAU</span>
+          <span class="chip">Macao</span>
+          <span class="chip">Tailandia</span>
+          <span class="chip">Georgia</span>
+          <span class="chip">Uruguay</span>
+          <span class="chip">Lituania</span>
+          <span class="chip">Eslovaquia</span>
+          <span class="chip">Turquía</span>
+          <span class="chip">Rep. Dominicana</span>
+          <span class="chip">Montenegro</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ESPAÑA ================= -->
+  <section>
+    <div class="sec-head">
+      <p class="sec-title">🇪🇸 España: por debajo de la media OCDE en las tres materias</p>
+      <p class="sec-desc">Los resultados españoles caen en la última década en las tres competencias, con la lectura como la caída más pronunciada. Cataluña quedó excluida del informe por un sesgo de muestra (23% de exclusión de alumnos, frente al umbral del 5%).</p>
+    </div>
+
+    <div class="chart-card" style="margin-bottom:16px;">
+      <p class="chart-title">España vs. media OCDE · 2025</p>
+      <div class="legend">
+        <span class="legend-item"><span class="swatch" style="background:var(--muted); opacity:.5"></span>Media OCDE</span>
+        <span class="legend-item"><span class="swatch" style="background:var(--bad)"></span>España</span>
+      </div>
+
+      <div class="gbar-group">
+        <div class="gbar-label">Matemáticas</div>
+        <div class="gbar-rows">
+          <div class="gbar-row"><span class="gbar-yr">OCDE</span><div class="gbar-track"><div class="gbar-fill" title="OCDE: 463" style="width:77.2%; background:var(--grid); border:1px solid var(--muted);"></div></div><span class="gbar-val">463</span></div>
+          <div class="gbar-row"><span class="gbar-yr">ESP</span><div class="gbar-track"><div class="gbar-fill" title="España: 457" style="width:76.2%; background:var(--bad);"></div></div><span class="gbar-val">457 <span class="d down">▼6</span></span></div>
+        </div>
+      </div>
+      <div class="gbar-group">
+        <div class="gbar-label">Lectura</div>
+        <div class="gbar-rows">
+          <div class="gbar-row"><span class="gbar-yr">OCDE</span><div class="gbar-track"><div class="gbar-fill" title="OCDE: 461" style="width:76.8%; background:var(--grid); border:1px solid var(--muted);"></div></div><span class="gbar-val">461</span></div>
+          <div class="gbar-row"><span class="gbar-yr">ESP</span><div class="gbar-track"><div class="gbar-fill" title="España: 451" style="width:75.2%; background:var(--bad);"></div></div><span class="gbar-val">451 <span class="d down">▼10</span></span></div>
+        </div>
+      </div>
+      <div class="gbar-group">
+        <div class="gbar-label">Ciencias</div>
+        <div class="gbar-rows">
+          <div class="gbar-row"><span class="gbar-yr">OCDE</span><div class="gbar-track"><div class="gbar-fill" title="OCDE: 482" style="width:80.3%; background:var(--grid); border:1px solid var(--muted);"></div></div><span class="gbar-val">482</span></div>
+          <div class="gbar-row"><span class="gbar-yr">ESP</span><div class="gbar-track"><div class="gbar-fill" title="España: 477" style="width:79.5%; background:var(--bad);"></div></div><span class="gbar-val">477 <span class="d down">▼5</span></span></div>
+        </div>
+      </div>
+      <div class="axis-scale">
+        <div></div>
+        <div class="axis-ticks">
+          <span class="axis-tick" style="left:0%">0</span>
+          <span class="axis-tick" style="left:33.3%">200</span>
+          <span class="axis-tick" style="left:66.6%">400</span>
+          <span class="axis-tick" style="left:100%">600</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="chart-card">
+        <p class="chart-title">España: caída desde 2015</p>
+        <div class="gbar-group">
+          <div class="gbar-label">Lectura</div>
+          <div class="gbar-rows">
+            <div class="gbar-row"><span class="gbar-yr">2015</span><div class="gbar-track"><div class="gbar-fill" title="Lectura 2015: 496" style="width:82.7%; background:var(--read-soft); border:1px solid var(--read);"></div></div><span class="gbar-val">496</span></div>
+            <div class="gbar-row"><span class="gbar-yr">2025</span><div class="gbar-track"><div class="gbar-fill" title="Lectura 2025: 451" style="width:75.2%; background:var(--read);"></div></div><span class="gbar-val">451 <span class="d down">▼45</span></span></div>
+          </div>
+        </div>
+        <div class="gbar-group">
+          <div class="gbar-label">Matemáticas</div>
+          <div class="gbar-rows">
+            <div class="gbar-row"><span class="gbar-yr">2015</span><div class="gbar-track"><div class="gbar-fill" title="Matemáticas 2015: 486" style="width:81%; background:var(--math-soft); border:1px solid var(--math);"></div></div><span class="gbar-val">486</span></div>
+            <div class="gbar-row"><span class="gbar-yr">2025</span><div class="gbar-track"><div class="gbar-fill" title="Matemáticas 2025: 457" style="width:76.2%; background:var(--math);"></div></div><span class="gbar-val">457 <span class="d down">▼29</span></span></div>
+          </div>
+        </div>
+        <div class="gbar-group">
+          <div class="gbar-label">Ciencias</div>
+          <div class="gbar-rows">
+            <div class="gbar-row"><span class="gbar-yr">2015</span><div class="gbar-track"><div class="gbar-fill" title="Ciencias 2015: 493" style="width:82.2%; background:var(--sci-soft); border:1px solid var(--sci);"></div></div><span class="gbar-val">493</span></div>
+            <div class="gbar-row"><span class="gbar-yr">2025</span><div class="gbar-track"><div class="gbar-fill" title="Ciencias 2025: 477" style="width:79.5%; background:var(--sci);"></div></div><span class="gbar-val">477 <span class="d down">▼16</span></span></div>
+          </div>
+        </div>
+        <p class="footnote">La caída en lectura equivale a más de dos cursos escolares de aprendizaje; en matemáticas, a año y medio.</p>
+      </div>
+
+      <div class="chart-card">
+        <p class="chart-title">Comunidades autónomas (ciencias)</p>
+        <p class="chart-sub">Mejor y peor situadas, según medios de prensa que citan el informe</p>
+        <div class="rank-list">
+          <div class="rank-row"><span>1º</span><span class="rname">Madrid</span><div class="rtrack"><div class="rfill" style="width:82.5%"></div></div><span class="rval">495</span></div>
+          <div class="rank-row"><span>2º</span><span class="rname">Castilla y León</span><div class="rtrack"><div class="rfill" style="width:82.2%"></div></div><span class="rval">493</span></div>
+          <div class="rank-row"><span>…</span><span class="rname" style="color:var(--muted); font-weight:400;">resto de comunidades</span><div class="rtrack"></div><span class="rval"></span></div>
+          <div class="rank-row"><span>↓</span><span class="rname">Ceuta y Melilla</span><div class="rtrack"><div class="rfill" style="width:55%; background:var(--bad);"></div></div><span class="rval">más bajas</span></div>
+        </div>
+        <p class="footnote">La diferencia en lectura entre la comunidad mejor y peor situada ronda los 100 puntos.</p>
+      </div>
+    </div>
+
+    <div class="chip-row" style="margin-top:14px;">
+      <span class="chip">🗣️ El profesorado señala falta de recursos y de personal</span>
+      <span class="chip">🤖 Uso de IA más intensivo que la media OCDE</span>
+      <span class="chip">📊 Cataluña excluida por sesgo muestral</span>
+    </div>
+  </section>
+
+  <!-- ================= AMÉRICA LATINA ================= -->
+  <section>
+    <div class="sec-head">
+      <p class="sec-title">🌎 América Latina: el retroceso se profundiza</p>
+      <p class="sec-desc">Todos los países de la región quedan por debajo de la media OCDE en las tres materias. Argentina y México registran sus peores resultados en matemáticas desde 2006.</p>
+    </div>
+
+    <div class="country-grid">
+      <div class="country-card">
+        <div class="country-name"><h4>🇦🇷 Argentina</h4><span class="country-note">peor dato en mate desde 2006</span></div>
+        <div class="crow"><span class="clabel">Mate</span><div class="ctrack"><div class="cfill" style="width:61.2%; background:var(--math);"></div></div><span class="cval">367</span><span class="cdelta down">▼11</span></div>
+        <div class="crow"><span class="clabel">Lectura</span><div class="ctrack"><div class="cfill" style="width:64.8%; background:var(--read);"></div></div><span class="cval">389</span><span class="cdelta down">▼12</span></div>
+        <div class="crow"><span class="clabel">Ciencias</span><div class="ctrack"><div class="cfill" style="width:65.5%; background:var(--sci);"></div></div><span class="cval">393</span><span class="cdelta down">▼13</span></div>
+      </div>
+
+      <div class="country-card">
+        <div class="country-name"><h4>🇲🇽 México</h4><span class="country-note">mínimo histórico en mate desde 2006</span></div>
+        <div class="crow"><span class="clabel">Mate</span><div class="ctrack"><div class="cfill" style="width:64.7%; background:var(--math);"></div></div><span class="cval">388</span><span class="cdelta down">▼7</span></div>
+        <div class="crow"><span class="clabel">Lectura</span><div class="ctrack"><div class="cfill" style="width:68%; background:var(--read);"></div></div><span class="cval">408</span><span class="cdelta down">▼7</span></div>
+        <div class="crow"><span class="clabel">Ciencias</span><div class="ctrack"><div class="cfill" style="width:69%; background:var(--sci);"></div></div><span class="cval">414</span><span class="cdelta up">▲4</span></div>
+      </div>
+
+      <div class="country-card">
+        <div class="country-name"><h4>🇨🇴 Colombia</h4><span class="country-note"></span></div>
+        <div class="crow"><span class="clabel">Mate</span><div class="ctrack"><div class="cfill" style="width:63.5%; background:var(--math);"></div></div><span class="cval">381</span><span class="cdelta down">▼2</span></div>
+        <div class="crow"><span class="clabel">Lectura</span><div class="ctrack"><div class="cfill" style="width:66.5%; background:var(--read);"></div></div><span class="cval">399</span><span class="cdelta down">▼10</span></div>
+        <div class="crow"><span class="clabel">Ciencias</span><div class="ctrack"><div class="cfill" style="width:69%; background:var(--sci);"></div></div><span class="cval">414</span><span class="cdelta up">▲3</span></div>
+      </div>
+
+      <div class="country-card">
+        <div class="country-name"><h4>🇧🇷 Brasil</h4><span class="country-note"></span></div>
+        <div class="crow"><span class="clabel">Mate</span><div class="ctrack"><div class="cfill" style="width:62.8%; background:var(--math);"></div></div><span class="cval">377</span><span class="cdelta down">▼2</span></div>
+        <div class="crow"><span class="clabel">Lectura</span><div class="ctrack"><div class="cfill" style="width:68%; background:var(--read);"></div></div><span class="cval">408</span><span class="cdelta down">▼2</span></div>
+        <div class="crow"><span class="clabel">Ciencias</span><div class="ctrack"><div class="cfill" style="width:68.2%; background:var(--sci);"></div></div><span class="cval">409</span><span class="cdelta up">▲6</span></div>
+      </div>
+
+      <div class="country-card">
+        <div class="country-name"><h4>🇨🇷 Costa Rica</h4><span class="country-note">única con leves subidas</span></div>
+        <div class="crow"><span class="clabel">Mate</span><div class="ctrack"><div class="cfill" style="width:64.5%; background:var(--math);"></div></div><span class="cval">387</span><span class="cdelta up">▲2</span></div>
+        <div class="crow"><span class="clabel">Lectura</span><div class="ctrack"><div class="cfill" style="width:69.3%; background:var(--read);"></div></div><span class="cval">416</span><span class="cdelta up">▲1</span></div>
+        <div class="crow"><span class="clabel">Ciencias</span><div class="ctrack"></div><span class="cval" style="font-size:11px; font-weight:400; color:var(--muted);">56%*</span><span></span></div>
+      </div>
+
+      <div class="country-card">
+        <div class="country-name"><h4>🇨🇱 Chile</h4><span class="country-note">cifras exactas no publicadas en esta nota</span></div>
+        <div class="crow"><span class="clabel">Mate</span><div class="ctrack"></div><span class="cval" style="font-size:11.5px; font-weight:400; color:var(--muted);">cae</span><span class="cdelta down">▼</span></div>
+        <div class="crow"><span class="clabel">Lectura</span><div class="ctrack"></div><span class="cval" style="font-size:11.5px; font-weight:400; color:var(--muted);">cae</span><span class="cdelta down">▼</span></div>
+        <div class="crow"><span class="clabel">Ciencias</span><div class="ctrack"></div><span class="cval" style="font-size:11.5px; font-weight:400; color:var(--muted);">estable</span><span></span></div>
+      </div>
+    </div>
+    <p class="footnote">Barras a escala 0–600. Deltas (▲/▼) comparan con PISA 2022. En Chile, el 59% queda por debajo del nivel mínimo en matemáticas (+10 puntos porcentuales desde 2015); en Costa Rica, el 56% del alumnado alcanza el nivel mínimo en ciencias (cifra de competencia, no comparable directamente con la escala de 0–600).</p>
+  </section>
+
+  <p class="src">
+    Fuentes: <a href="https://www.oecd.org/en/about/news/press-releases/2026/09/pisa-2025-students-reading-and-mathematics-performance-declined-sharply-across-the-oecd.html" target="_blank">OCDE, nota de prensa PISA 2025</a> ·
+    <a href="https://www.oecd.org/en/publications/pisa-2025-results-volume-i_73451bc5-en.html" target="_blank">OCDE, PISA 2025 Results (Volume I)</a> ·
+    <a href="https://www.ei-ie.org/en/item/32952:new-pisa-report-reveals-decline-in-student-performance-amid-chronic-teacher-shortage-and-shrinking-attention-spans" target="_blank">Education International</a> ·
+    <a href="https://www.tes.com/magazine/news/general/pisa-2025-scores-revealed-england-uk-ranking" target="_blank">Tes</a> ·
+    <a href="https://www.infobae.com/espana/2026/09/08/espana-se-lleva-un-batacazo-en-pisa-2025-caen-los-resultados-de-los-estudiantes-en-todas-las-asignaturas-mientras-los-profesores-denuncian-la-falta-de-recursos/" target="_blank">Infobae (España)</a> ·
+    <a href="https://www.infobae.com/america/america-latina/2026/09/08/pruebas-pisa-los-paises-de-america-latina-profundizan-su-retroceso-educativo/" target="_blank">Infobae (América Latina)</a>
+  </p>
+
+</div>
+</body>
+</html>
